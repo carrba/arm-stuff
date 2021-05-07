@@ -29,7 +29,7 @@
         {
             "name": "variables('SQLServer')",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2014-04-01",
+            "apiVersion": "2018-10-01",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "variables('SQLServer')"
@@ -41,9 +41,9 @@
             "resources": [
                 {
                     "type": "firewallRules",
-                    "apiVersion": "2014-04-01",
+                    "apiVersion": "2018-010-01",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Sql/servers', variables('SQLServer'))]"
+                        "[resourceId('Microsoft.Sql/servers/', variables('SQLServer'))]"
                     ],
                     "location": "[resourceGroup().location]",
                     "name": "AllowAllWindowsAzureIps",
