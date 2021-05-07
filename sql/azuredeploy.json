@@ -41,7 +41,7 @@
             "resources": [
                 {
                     "type": "firewallRules",
-                    "apiVersion": "2018-010-01",
+                    "apiVersion": "2018-10-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers/', variables('SQLServer'))]"
                     ],
