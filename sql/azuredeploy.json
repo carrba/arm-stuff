@@ -29,7 +29,7 @@
         {
             "name": "variables('SQLServer')",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2018-10-01",
+            "apiVersion": "2020-08-01-preview",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "variables('SQLServer')"
@@ -41,7 +41,7 @@
             "resources": [
                 {
                     "type": "firewallRules",
-                    "apiVersion": "2018-10-01",
+                    "apiVersion": "2020-08-01-preview",
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers/', variables('SQLServer'))]"
                     ],
