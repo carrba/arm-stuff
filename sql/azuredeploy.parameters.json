@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQLServerName": {
+            "value": "<SQL Server Name>"
+        },
+        "Username": {
+            "value": "<SQL admin username>"
+        },
+        "Password": {
+            "reference": {
+                "keyVault": {
+                    "id": "<Resource ID of Vault>"
+                },
+                "secretName": "SQLPassword"
+            }
+        }
+    }
+}
