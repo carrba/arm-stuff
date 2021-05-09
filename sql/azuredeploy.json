@@ -46,7 +46,6 @@
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers', variables('SQLServer'))]"
                     ],
-                    "location": "[resourceGroup().location]",
                     "name": "AllowAllWindowsAzureIps",
                     "properties": {
                         "startIpAddress": "0.0.0.0",
