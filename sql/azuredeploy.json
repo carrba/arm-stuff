@@ -2,50 +2,48 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "SQL Server Name": {
-            "type": "string",
-            "metadata": {
-                "description": "Please enter your SQL Server Name"
+        "SQLServerName": {
+           "type": "string",
+           "metadata": {
+                "description": "Enter SQl Server Name"
             }
         },
-        "SQL username": {
+        "Username": {
             "type": "string",
             "metadata": {
-                "description": "Please enter your SQL username"
-            }
+                "description": "Enter SQL username"
+            }  
         },
-        "SQL password": {
+        "Password": {
             "type": "securestring",
             "metadata": {
-                "description": "Please enter your SQL password"
-            }
+                "description": "Enter SQL password"
+            }  
         }
     },
     "functions": [],
-    "variables": {
-        "SQLServer": "[parameters('SQL Server Name')]"
-    },
+    "variables": {},
     "resources": [
         {
-            "name": "variables('SQLServer')",
+            "name": "[parameters('SQLServerName')]",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2020-08-01-preview",
-            "dependsOn": [],
+            "apiVersion": "2015-05-01-preview",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "variables('SQLServer')"
+                "displayName": "[parameters('SQLServerName')]"
             },
             "properties": {
-                "administratorLogin": "[parameters('SQL username')]",
-                "administratorLoginPassword": "[parameters('SQL password')]"
+                "administratorLogin": "[parameters('Username')]",
+                "administratorLoginPassword": "[parameters('Password')]"
             },
             "resources": [
                 {
                     "type": "firewallRules",
-                    "apiVersion": "2020-08-01-preview",
+                    "apiVersion": "2015-05-01-preview",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Sql/servers', variables('SQLServer'))]"
+                        "[resourceId('Microsoft.Sql/servers', parameters('SQLServerName'))]"
                     ],
+                    "location": "[resourceGroup().location]",
                     "name": "AllowAllWindowsAzureIps",
                     "properties": {
                         "startIpAddress": "0.0.0.0",
