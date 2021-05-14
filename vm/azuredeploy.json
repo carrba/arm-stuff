@@ -1,0 +1,189 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Admin username": {
+           "type": "string",
+           "metadata": {
+                "description": "Enter your username"
+            }
+        },
+        "Admin password": {
+           "type": "securestring",
+           "metadata": {
+                "description": "Enter your password"
+            }
+        },
+
+        "VM Name": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter VM name"
+            }
+        }
+    },
+    "functions": [],
+    "variables": {
+        "storageAccount": "[uniqueString('itbc')]",
+        "PIP": "[concat(parameters('VM Name'),'-PublicIP')]",
+        "NIC": "[concat(parameters('VM Name'),'-NIC')]",
+        "osDisk": "[concat(parameters('VM Name'),'-osDisk')]",
+        "VNET": "[concat(parameters('VM Name'),'-VNET')]",
+        "Subnet": "[concat(parameters('VM Name'),'-Subnet')]",
+        "NSG": "[concat(parameters('VM Name'),'-NSG')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('storageAccount')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('storageAccount')]"
+            },
+            "properties": {
+                "accountType": "Standard_LRS"
+            }
+        },
+        {
+            "name": "[variables('PIP')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2018-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('PIP')]"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[uniqueString('itbc')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('VNET')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2018-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('VNET')]"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('Subnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('NSG')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('NIC')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-08-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIP'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('VNET'))]",
+                "[resourceid('Microsoft.Network/networkSecurityGroups', variables('NSG'))]"
+            ],
+            "tags": {
+                "displayName": "[variables('NIC')]"
+            },
+            "properties": {
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NSG'))]"
+                },
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIP'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('VNET'), variables('subnet'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('VM Name')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('NIC'))]"
+            ],
+            "tags": {
+                "displayName": "[parameters('VM Name')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('VM Name')]",
+                    "adminUsername": "[parameters('Admin username')]",
+                    "adminPassword": "[parameters('Admin password')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[variables('osDisk')]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('NIC'))]"
+                        }
+                    ]
+                }
+            }
+        }     
+    ],
+    "outputs": {}
+}
