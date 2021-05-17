@@ -164,7 +164,7 @@
                 },
                 "storageProfile": {
                     "imageReference": {
-                        "publisher": "Microsoft",
+                        "publisher": "MicrosoftWindowsServer",
                         "offer": "WindowsServer",
                         "sku": "2019-Datacenter",
                         "version": "latest"
